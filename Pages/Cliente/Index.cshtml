@@ -1,0 +1,42 @@
+@page
+@model GerenciamentoPedidos.Pages.Cliente.IndexModel
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<h1>Clientes</h1>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" value="@Model.Filtro" class="form-control" placeholder="Buscar por nome ou email..." />
+        <button class="btn btn-primary" type="submit">Buscar</button>
+        <a asp-page="Create" class="btn btn-success ms-2">Novo Cliente</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Data de Cadastro</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var cliente in Model.Clientes)
+    {
+        <tr>
+            <td>@cliente.Nome</td>
+            <td>@cliente.Email</td>
+            <td>@cliente.Telefone</td>
+            <td>@cliente.DataCadastro.ToString("dd/MM/yyyy")</td>
+            <td>
+                <a asp-page="Edit" asp-route-id="@cliente.Id" class="btn btn-sm btn-warning">Editar</a>
+                <a asp-page="Delete" asp-route-id="@cliente.Id" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
