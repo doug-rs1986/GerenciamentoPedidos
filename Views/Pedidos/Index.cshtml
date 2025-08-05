@@ -1,0 +1,35 @@
+@model IEnumerable<GerenciamentoPedidos.Models.Pedido>
+@{
+    ViewData["Title"] = "Pedidos";
+}
+<h1>Pedidos</h1>
+<a asp-action="Create" class="btn btn-success mb-3">Novo Pedido</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Valor Total</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var pedido in Model)
+    {
+        <tr>
+            <td>@pedido.Id</td>
+            <td>@pedido.ClienteId</td>
+            <td>@pedido.DataPedido.ToString("dd/MM/yyyy")</td>
+            <td>@pedido.ValorTotal.ToString("C")</td>
+            <td>@pedido.Status</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@pedido.Id" class="btn btn-sm btn-warning">Editar</a>
+                <a asp-action="Details" asp-route-id="@pedido.Id" class="btn btn-sm btn-info">Detalhes</a>
+                <a asp-action="Delete" asp-route-id="@pedido.Id" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

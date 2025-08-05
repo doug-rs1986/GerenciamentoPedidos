@@ -1,0 +1,33 @@
+@model IEnumerable<GerenciamentoPedidos.Models.Produto>
+@{
+    ViewData["Title"] = "Produtos";
+}
+<h1>Produtos</h1>
+<a asp-action="Create" class="btn btn-success mb-3">Novo Produto</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var produto in Model)
+    {
+        <tr>
+            <td>@produto.Nome</td>
+            <td>@produto.Descricao</td>
+            <td>@produto.Preco.ToString("C")</td>
+            <td>@produto.QuantidadeEstoque</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@produto.Id" class="btn btn-sm btn-warning">Editar</a>
+                <a asp-action="Details" asp-route-id="@produto.Id" class="btn btn-sm btn-info">Detalhes</a>
+                <a asp-action="Delete" asp-route-id="@produto.Id" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,23 @@
+@model GerenciamentoPedidos.Models.Produto
+@{
+    ViewData["Title"] = "Excluir Produto";
+}
+<h1>Excluir Produto</h1>
+<h4>Tem certeza que deseja excluir este produto?</h4>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Nome</dt>
+        <dd class="col-sm-10">@Model.Nome</dd>
+        <dt class="col-sm-2">Descrição</dt>
+        <dd class="col-sm-10">@Model.Descricao</dd>
+        <dt class="col-sm-2">Preço</dt>
+        <dd class="col-sm-10">@Model.Preco.ToString("C")</dd>
+        <dt class="col-sm-2">Estoque</dt>
+        <dd class="col-sm-10">@Model.QuantidadeEstoque</dd>
+    </dl>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Excluir</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
