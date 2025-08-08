@@ -15,47 +15,107 @@ namespace GerenciamentoPedidos.Data
 
         public async Task<IEnumerable<Pedido>> GetAllAsync()
         {
-            using var connection = new SqlConnection(_connectionString);
-            var sql = "SELECT Id, CustomerId as ClienteId, OrderDate as DataPedido, TotalAmount as ValorTotal, Status FROM Orders";
-            return await connection.QueryAsync<Pedido>(sql);
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var sql = "SELECT Id, CustomerId as ClienteId, OrderDate as DataPedido, TotalAmount as ValorTotal, Status FROM Orders";
+                return await connection.QueryAsync<Pedido>(sql);
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Erro ao buscar pedidos.", ex);
+            }
         }
 
         public async Task<Pedido> GetByIdAsync(int id)
         {
-            using var connection = new SqlConnection(_connectionString);
-            var sql = "SELECT Id, CustomerId as ClienteId, OrderDate as DataPedido, TotalAmount as ValorTotal, Status FROM Orders WHERE Id = @Id";
-            return await connection.QueryFirstOrDefaultAsync<Pedido>(sql, new { Id = id });
+            if (id <= 0)
+                throw new ArgumentException("Id inválido.");
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var sql = "SELECT Id, CustomerId as ClienteId, OrderDate as DataPedido, TotalAmount as ValorTotal, Status FROM Orders WHERE Id = @Id";
+                return await connection.QueryFirstOrDefaultAsync<Pedido>(sql, new { Id = id });
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Erro ao buscar pedido por Id.", ex);
+            }
         }
 
         public async Task<int> AddAsync(PedidoDto pedidoDto)
         {
-            using var connection = new SqlConnection(_connectionString);
-            var sql = @"INSERT INTO Orders (CustomerId, OrderDate, TotalAmount, Status) VALUES (@ClienteId, @DataPedido, @ValorTotal, @Status); SELECT CAST(SCOPE_IDENTITY() as int);";
-            var id = await connection.QuerySingleAsync<int>(sql, new { pedidoDto.ClienteId, pedidoDto.DataPedido, pedidoDto.ValorTotal, pedidoDto.Status });
-            return id;
+            if (pedidoDto == null)
+                throw new ArgumentNullException(nameof(pedidoDto));
+            if (pedidoDto.ClienteId <= 0 || pedidoDto.DataPedido == default || pedidoDto.ValorTotal <= 0 || string.IsNullOrWhiteSpace(pedidoDto.Status))
+                throw new ArgumentException("Dados do pedido inválidos.");
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var sql = @"INSERT INTO Orders (CustomerId, OrderDate, TotalAmount, Status) VALUES (@ClienteId, @DataPedido, @ValorTotal, @Status); SELECT CAST(SCOPE_IDENTITY() as int);";
+                var id = await connection.QuerySingleAsync<int>(sql, new { pedidoDto.ClienteId, pedidoDto.DataPedido, pedidoDto.ValorTotal, pedidoDto.Status });
+                return id;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Erro ao adicionar pedido.", ex);
+            }
         }
 
         public async Task<bool> UpdateAsync(int id, PedidoDto pedidoDto)
         {
-            using var connection = new SqlConnection(_connectionString);
-            var sql = @"UPDATE Orders SET CustomerId = @ClienteId, OrderDate = @DataPedido, Status = @Status WHERE Id = @Id";
-            var rows = await connection.ExecuteAsync(sql, new { pedidoDto.ClienteId, pedidoDto.DataPedido, pedidoDto.Status, Id = id });
-            return rows > 0;
+            if (id <= 0)
+                throw new ArgumentException("Id inválido.");
+            if (pedidoDto == null)
+                throw new ArgumentNullException(nameof(pedidoDto));
+            if (pedidoDto.ClienteId <= 0 || pedidoDto.DataPedido == default || string.IsNullOrWhiteSpace(pedidoDto.Status))
+                throw new ArgumentException("Dados do pedido inválidos.");
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var sql = @"UPDATE Orders SET CustomerId = @ClienteId, OrderDate = @DataPedido, Status = @Status WHERE Id = @Id";
+                var rows = await connection.ExecuteAsync(sql, new { pedidoDto.ClienteId, pedidoDto.DataPedido, pedidoDto.Status, Id = id });
+                return rows > 0;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Erro ao atualizar pedido.", ex);
+            }
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            using var connection = new SqlConnection(_connectionString);
-            var sql = "DELETE FROM Orders WHERE Id = @Id";
-            var rows = await connection.ExecuteAsync(sql, new { Id = id });
-            return rows > 0;
+            if (id <= 0)
+                throw new ArgumentException("Id inválido.");
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var sql = "DELETE FROM Orders WHERE Id = @Id";
+                var rows = await connection.ExecuteAsync(sql, new { Id = id });
+                return rows > 0;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Erro ao excluir pedido.", ex);
+            }
         }
 
         public async Task<int> AddItemAsync(ItemPedido item)
         {
-            using var connection = new SqlConnection(_connectionString);
-            var sql = @"INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice) VALUES (@PedidoId, @ProdutoId, @Quantidade, @PrecoUnitario); SELECT CAST(SCOPE_IDENTITY() as int);";
-            return await connection.QuerySingleAsync<int>(sql, item);
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            if (item.PedidoId <= 0 || item.ProdutoId <= 0 || item.Quantidade <= 0 || item.PrecoUnitario <= 0)
+                throw new ArgumentException("Dados do item do pedido inválidos.");
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var sql = @"INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice) VALUES (@PedidoId, @ProdutoId, @Quantidade, @PrecoUnitario); SELECT CAST(SCOPE_IDENTITY() as int);";
+                return await connection.QuerySingleAsync<int>(sql, item);
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Erro ao adicionar item ao pedido.", ex);
+            }
         }
 
         public async Task<IEnumerable<ItemPedido>> GetItensByPedidoIdAsync(int pedidoId)
