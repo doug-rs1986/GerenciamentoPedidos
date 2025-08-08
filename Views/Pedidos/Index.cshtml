@@ -1,8 +1,35 @@
 @model IEnumerable<GerenciamentoPedidos.Models.Pedido>
+@using GerenciamentoPedidos.Models
+@inject GerenciamentoPedidos.Data.IClienteRepository ClienteRepo
 @{
     ViewData["Title"] = "Pedidos";
+    var clientes = ClienteRepo.GetAllAsync().Result.ToDictionary(c => c.Id, c => c.Nome);
 }
 <h1>Pedidos</h1>
+<form method="get" class="mb-3">
+    <div class="row">
+        <div class="col">
+            <select name="clienteId" class="form-control">
+                <option value="">Filtrar por Cliente</option>
+                @foreach (var cliente in clientes)
+                {
+                    <option value="@cliente.Key">@cliente.Value</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <select name="status" class="form-control">
+                <option value="">Filtrar por Status</option>
+                <option value="Novo">Novo</option>
+                <option value="Processando">Processando</option>
+                <option value="Finalizado">Finalizado</option>
+            </select>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </div>
+</form>
 <a asp-action="Create" class="btn btn-success mb-3">Novo Pedido</a>
 <table class="table table-striped">
     <thead>
@@ -20,7 +47,7 @@
     {
         <tr>
             <td>@pedido.Id</td>
-            <td>@pedido.ClienteId</td>
+            <td>@(clientes.ContainsKey(pedido.ClienteId) ? clientes[pedido.ClienteId] : pedido.ClienteId.ToString())</td>
             <td>@pedido.DataPedido.ToString("dd/MM/yyyy")</td>
             <td>@pedido.ValorTotal.ToString("C")</td>
             <td>@pedido.Status</td>

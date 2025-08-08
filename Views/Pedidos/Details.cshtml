@@ -1,6 +1,13 @@
 @model GerenciamentoPedidos.Models.Pedido
+@using GerenciamentoPedidos.Models
+@inject GerenciamentoPedidos.Data.IClienteRepository ClienteRepo
+@inject GerenciamentoPedidos.Data.IPedidoRepository PedidoRepo
+@inject GerenciamentoPedidos.Data.IProdutoRepository ProdutoRepo
 @{
     ViewData["Title"] = "Detalhes do Pedido";
+    var cliente = ClienteRepo.GetByIdAsync(Model.ClienteId).Result;
+    var itens = PedidoRepo.GetItensByPedidoIdAsync(Model.Id).Result;
+    var produtos = ProdutoRepo.GetAllAsync().Result.ToDictionary(p => p.Id, p => p);
 }
 <h1>Detalhes do Pedido</h1>
 <div class="mb-3">
@@ -9,7 +16,7 @@
 </div>
 <div class="mb-3">
     <label>Cliente:</label>
-    <span>@Model.ClienteId</span>
+    <span>@cliente?.Nome </span>
 </div>
 <div class="mb-3">
     <label>Data do Pedido:</label>
@@ -23,6 +30,28 @@
     <label>Status:</label>
     <span>@Model.Status</span>
 </div>
+<h4>Itens do Pedido</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Preço Unitário</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in itens)
+    {
+        <tr>
+            <td>@(produtos.ContainsKey(item.ProdutoId) ? produtos[item.ProdutoId].Nome : item.ProdutoId.ToString())</td>
+            <td>@item.Quantidade</td>
+            <td>@item.PrecoUnitario.ToString("C")</td>
+            <td>@((item.PrecoUnitario * item.Quantidade).ToString("C"))</td>
+        </tr>
+    }
+    </tbody>
+</table>
 <a asp-action="Index" class="btn btn-secondary">Voltar</a>
 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
 <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Excluir</a>
