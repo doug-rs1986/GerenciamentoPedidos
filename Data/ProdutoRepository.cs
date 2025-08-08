@@ -10,7 +10,7 @@ namespace GerenciamentoPedidos.Data
         private readonly string _connectionString;
         public ProdutoRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
         }
 
         public async Task<IEnumerable<Produto>> GetAllAsync()
@@ -56,6 +56,22 @@ namespace GerenciamentoPedidos.Data
             using var connection = new SqlConnection(_connectionString);
             var sql = "DELETE FROM Products WHERE Id = @Id";
             var rows = await connection.ExecuteAsync(sql, new { Id = id });
+            return rows > 0;
+        }
+
+        public async Task<bool> HasStockAsync(int produtoId, int quantidade)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var sql = "SELECT StockQuantity FROM Products WHERE Id = @Id";
+            var estoque = await connection.QuerySingleOrDefaultAsync<int>(sql, new { Id = produtoId });
+            return estoque >= quantidade;
+        }
+
+        public async Task<bool> DecrementStockAsync(int produtoId, int quantidade)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var sql = "UPDATE Products SET StockQuantity = StockQuantity - @Quantidade WHERE Id = @Id AND StockQuantity >= @Quantidade";
+            var rows = await connection.ExecuteAsync(sql, new { Id = produtoId, Quantidade = quantidade });
             return rows > 0;
         }
     }

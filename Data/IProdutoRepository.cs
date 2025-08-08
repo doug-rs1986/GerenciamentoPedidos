@@ -11,5 +11,7 @@ namespace GerenciamentoPedidos.Data
         Task<int> AddAsync(ProdutoDto produtoDto);
         Task<bool> UpdateAsync(int id, ProdutoDto produtoDto);
         Task<bool> DeleteAsync(int id);
+        Task<bool> HasStockAsync(int produtoId, int quantidade);
+        Task<bool> DecrementStockAsync(int produtoId, int quantidade);
     }
 }
