@@ -38,40 +38,47 @@ namespace GerenciamentoPedidos.Controllers
         public async Task<IActionResult> Create(PedidoDto dto)
         {
             if (!ModelState.IsValid) return View(dto);
-
-            decimal valorTotal = 0;
-            foreach (var item in dto.Itens)
+            try
             {
-                var produto = await _produtoRepo.GetByIdAsync(item.ProdutoId);
-                if (produto == null)
+                decimal valorTotal = 0;
+                foreach (var item in dto.Itens)
                 {
-                    ModelState.AddModelError("", $"Produto ID {item.ProdutoId} não encontrado.");
-                    return View(dto);
+                    var produto = await _produtoRepo.GetByIdAsync(item.ProdutoId);
+                    if (produto == null)
+                    {
+                        ModelState.AddModelError("", $"Produto ID {item.ProdutoId} não encontrado.");
+                        return View(dto);
+                    }
+                    if (!await _produtoRepo.HasStockAsync(item.ProdutoId, item.Quantidade))
+                    {
+                        ModelState.AddModelError("", $"Estoque insuficiente para o produto {produto.Nome}.");
+                        return View(dto);
+                    }
+                    item.PrecoUnitario = produto.Preco;
+                    valorTotal += item.PrecoUnitario * item.Quantidade;
                 }
-                if (!await _produtoRepo.HasStockAsync(item.ProdutoId, item.Quantidade))
+                dto.ValorTotal = valorTotal;
+                dto.DataPedido = DateTime.Now;
+                var pedidoId = await _repo.AddAsync(dto);
+                foreach (var item in dto.Itens)
                 {
-                    ModelState.AddModelError("", $"Estoque insuficiente para o produto {produto.Nome}.");
-                    return View(dto);
+                    await _produtoRepo.DecrementStockAsync(item.ProdutoId, item.Quantidade);
+                    var itemPedido = new ItemPedido
+                    {
+                        PedidoId = pedidoId,
+                        ProdutoId = item.ProdutoId,
+                        Quantidade = item.Quantidade,
+                        PrecoUnitario = item.PrecoUnitario
+                    };
+                    await _repo.AddItemAsync(itemPedido);
                 }
-                item.PrecoUnitario = produto.Preco;
-                valorTotal += item.PrecoUnitario * item.Quantidade;
+                return RedirectToAction(nameof(Index));
             }
-            dto.ValorTotal = valorTotal;
-            dto.DataPedido = DateTime.Now;
-            var pedidoId = await _repo.AddAsync(dto);
-            foreach (var item in dto.Itens)
+            catch (Exception ex)
             {
-                await _produtoRepo.DecrementStockAsync(item.ProdutoId, item.Quantidade);
-                var itemPedido = new ItemPedido
-                {
-                    PedidoId = pedidoId,
-                    ProdutoId = item.ProdutoId,
-                    Quantidade = item.Quantidade,
-                    PrecoUnitario = item.PrecoUnitario
-                };
-                await _repo.AddItemAsync(itemPedido);
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
             }
-            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -88,8 +95,16 @@ namespace GerenciamentoPedidos.Controllers
         public async Task<IActionResult> Edit(int id, PedidoDto dto)
         {
             if (!ModelState.IsValid) return View(dto);
-            await _repo.UpdateAsync(id, dto);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _repo.UpdateAsync(id, dto);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -103,8 +118,16 @@ namespace GerenciamentoPedidos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _repo.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _repo.DeleteAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return RedirectToAction(nameof(Delete), new { id });
+            }
         }
     }
 }

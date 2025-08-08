@@ -35,8 +35,16 @@ namespace GerenciamentoPedidos.Controllers
         public async Task<IActionResult> Create(ProdutoDto dto)
         {
             if (!ModelState.IsValid) return View(dto);
-            await _repo.AddAsync(dto);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _repo.AddAsync(dto);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -53,8 +61,16 @@ namespace GerenciamentoPedidos.Controllers
         public async Task<IActionResult> Edit(int id, ProdutoDto dto)
         {
             if (!ModelState.IsValid) return View(dto);
-            await _repo.UpdateAsync(id, dto);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _repo.UpdateAsync(id, dto);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -68,8 +84,16 @@ namespace GerenciamentoPedidos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _repo.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _repo.DeleteAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return RedirectToAction(nameof(Delete), new { id });
+            }
         }
     }
 }
