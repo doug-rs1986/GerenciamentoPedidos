@@ -12,6 +12,6 @@ namespace GerenciamentoPedidos.Data
         Task<bool> DeleteAsync(int id);
         Task<int> AddItemAsync(ItemPedido item);
         Task<IEnumerable<ItemPedido>> GetItensByPedidoIdAsync(int pedidoId);
-        Task<IEnumerable<Pedido>> GetFilteredAsync(int? clienteId = null, string status = null)
+        Task<IEnumerable<Pedido>> GetFilteredAsync(int? clienteId = null, string status = null);
     }
 }
