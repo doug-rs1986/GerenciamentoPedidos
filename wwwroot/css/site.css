@@ -19,4 +19,80 @@ html {
 
 body {
   margin-bottom: 60px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Títulos principais */
+h1 {
+  font-size: 2.5rem;
+  color: #222222;
+  margin-bottom: 1rem;
+}
+
+/* Botões padrão */
+.btn {
+  font-size: 1rem;
+  border-radius: 0.25rem;
+  font-family: inherit;
+}
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: #fff;
+}
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+.btn-primary {
+  background-color: #258cfb;
+  border-color: #258cfb;
+  color: #fff;
+}
+
+/* Tabelas */
+.table {
+  background-color: #fff;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+.table th {
+  background-color: #e9ecef;
+  color: #212529;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f2f2f2;
+}
+
+/* Espaçamento para seções principais */
+.container {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsividade extra */
+@media (max-width: 576px) {
+  h1 {
+    font-size: 2rem;
+  }
+  .container {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
 }
